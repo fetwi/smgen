@@ -12,10 +12,6 @@ csv_file = os.path.join(dir_path, "smurls.csv")
 
 
 
-
-
-
-
 import requests
 from bs4 import BeautifulSoup
 import os
