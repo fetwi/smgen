@@ -7,17 +7,25 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 template_file = os.path.join(dir_path, "smtemplate.html")
 csv_file = os.path.join(dir_path, "smurls.csv")
 
+# def prompt_version():
+#     return input('Enter the version (yyyy-m): ')
+# def prompt_edate():
+#     return input('Enter the effective date (yyyy-mm-dd): ')
+# def update_template():
+#     try:
+#         version = prompt_version()
+#         edate = prompt_date()
+
 def update_template():
     try:
         version = "2023-4"
         edate = "2023-04-01"
+
         lang = "en"
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-
         # Read the smtemplate.html file
         with open(template_file, 'r', encoding='utf-8') as file:
             template = file.read()
-
         # Read the smurls.csv file
         with open(csv_file, 'r', encoding='utf-8-sig') as file:
             reader = csv.reader(file)
@@ -25,15 +33,13 @@ def update_template():
                 placeholder, url = row
                 response = requests.get(url, headers=headers)
                 response.raise_for_status()  # Check for request errors
-
                 # Parse the HTML content
                 soup = BeautifulSoup(response.content, 'html.parser')
-                chapter_content = soup.find('div', id='ChapterContent')
-
+                chapter_content = soup.find('div', id='ChapterContent') or soup.find('div', id='smg-main')
                 if chapter_content is None:
                     raise ValueError(f'ChapterContent div not found for URL: {url}')
-
                 # Remove all tags that are not <ul>, <li>, or <a>
+
                 if placeholder == '{toc}':
                     # Remove the first <h3> tag
                     first_h3 = chapter_content.find('h3')
@@ -42,7 +48,11 @@ def update_template():
                     last_a = chapter_content.find_all('a')[-1]
                     if last_a:
                         last_a.decompose()
-                
+                    last_h3 = chapter_content.find_all('h3')[-1]
+                    if last_h3:
+                        a_gl_tag = soup.new_tag('a', href='#gl')
+                        a_gl_tag.string = '1 Supply Manual glossary'
+                        last_h3.replace_with(a_gl_tag)
                     # Process remaining <h3> tags
                     for h3 in chapter_content.find_all('h3'):
                         strong_tag = h3.find('strong')
@@ -52,17 +62,14 @@ def update_template():
                             a_tag = soup.new_tag('a', href=f'#_{href_value}{href_second}')
                             a_tag.string = f'{href_value}{href_second} {h3.text}'
                             h3.replace_with(a_tag)
-
-                    for tag in chapter_content.find_all(True):  # True finds all tags
+                    for tag in chapter_content.find_all(True):
                         if tag.name not in ['section', 'h3', 'strong', 'ul', 'li', 'a']:
-                            tag.decompose()  # Remove the tag
-                
+                            tag.decompose()
                     # Replace all <section> tags with <li> tags
                     for section in chapter_content.find_all('section'):
                         li_tag = soup.new_tag('li')
                         li_tag.extend(section.contents)
                         section.replace_with(li_tag)
-                
                     # Modify href attributes in <a> tags within chapter_content
                     for a in chapter_content.find_all('a', href=True):
                         href = a['href']
@@ -76,12 +83,10 @@ def update_template():
                             href = f'#an_{an_chap}'
                             a['href'] = href
 
-                    chapter_content = chapter_content.decode_contents()
-
                 if 'an' in placeholder or 'ch' in placeholder:
-                    for tag in chapter_content.find_all(True):  # True finds all tags
+                    for tag in chapter_content.find_all(True):
                         if tag.name in ['script']:
-                            tag.decompose()  # Remove the tag
+                            tag.decompose()
 
                 if 'ch' in placeholder:
                     # Find the <a> tag with id "_Annexes" and modify its id
@@ -107,6 +112,8 @@ def update_template():
                             # Remove everything before the #
                             a_id = f'an{a_id}'
                             a['id'] = a_id
+
+                chapter_content = chapter_content.decode_contents()
                 toc = str(chapter_content)
 
                 # Replace the placeholder with the content
