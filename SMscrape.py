@@ -33,6 +33,80 @@ def update_template():
                 if chapter_content is None:
                     raise ValueError(f'ChapterContent div not found for URL: {url}')
 
+                # Remove all tags that are not <ul>, <li>, or <a>
+                if placeholder == '{toc}':
+                    # Remove the first <h3> tag
+                    first_h3 = chapter_content.find('h3')
+                    if first_h3:
+                        first_h3.decompose()
+                    last_a = chapter_content.find_all('a')[-1]
+                    if last_a:
+                        last_a.decompose()
+                
+                    # Process remaining <h3> tags
+                    for h3 in chapter_content.find_all('h3'):
+                        strong_tag = h3.find('strong')
+                        if strong_tag and len(strong_tag.text) >= 5:
+                            href_second = strong_tag.text[9] if strong_tag.text[9].isdigit() else ''
+                            href_value = strong_tag.text[8]
+                            a_tag = soup.new_tag('a', href=f'#_{href_value}{href_second}')
+                            a_tag.string = f'{href_value}{href_second} {h3.text}'
+                            h3.replace_with(a_tag)
+
+                    for tag in chapter_content.find_all(True):  # True finds all tags
+                        if tag.name not in ['section', 'h3', 'strong', 'ul', 'li', 'a']:
+                            tag.decompose()  # Remove the tag
+                
+                    # Replace all <section> tags with <li> tags
+                    for section in chapter_content.find_all('section'):
+                        li_tag = soup.new_tag('li')
+                        li_tag.extend(section.contents)
+                        section.replace_with(li_tag)
+                
+                    # Modify href attributes in <a> tags within chapter_content
+                    for a in chapter_content.find_all('a', href=True):
+                        href = a['href']
+                        if '#' in href:
+                            # Remove everything before the #
+                            href = href[href.index('#'):]
+                            a['href'] = href
+                        if 'annex' in href:
+                            a_content = a.text
+                            an_chap = a_content[-2:] if len(a_content) == 22 else a_content[-1]
+                            href = f'#an_{an_chap}'
+                            a['href'] = href
+
+                    chapter_content = chapter_content.decode_contents()
+
+                if 'an' in placeholder or 'ch' in placeholder:
+                    for tag in chapter_content.find_all(True):  # True finds all tags
+                        if tag.name in ['script']:
+                            tag.decompose()  # Remove the tag
+
+                if 'ch' in placeholder:
+                    # Find the <a> tag with id "_Annexes" and modify its id
+                    annex_tag = chapter_content.find('a', id='_Annexes')
+                    if annex_tag:
+                        # Get the third and fourth characters of the placeholder
+                        third_char = placeholder[3]
+                        fourth_char = placeholder[4] if placeholder[4] != '}' else ''
+                        new_id = f'an_{third_char}{fourth_char}'
+                        annex_tag['id'] = new_id
+                    for a in chapter_content.find_all('a', href=True):
+                        href = a['href']
+                        if 'annex' in href:
+                            # Remove everything before the #
+                            href = href[href.index('#'):]
+                            href = '#an' + href[1:]
+                            a['href'] = href
+
+                if 'an' in placeholder:
+                    for a in chapter_content.find_all('a', id=True):
+                        a_id = a['id']
+                        if '_' in a_id:
+                            # Remove everything before the #
+                            a_id = f'an{a_id}'
+                            a['id'] = a_id
                 toc = str(chapter_content)
 
                 # Replace the placeholder with the content

@@ -33,9 +33,10 @@ def update_template():
             raise ValueError('ChapterContent div not found')
 
         # Remove all tags that are not <ul>, <li>, or <a>
-        for tag in toc_content.find_all(True):  # True finds all tags
-            if tag.name not in ['section', 'ul', 'li', 'a']:
-                tag.decompose()  # Remove the tag
+        if placeholder == '{toc}':
+            for tag in toc_content.find_all(True):  # True finds all tags
+                if tag.name not in ['section', 'ul', 'li', 'a']:
+                    tag.decompose()  # Remove the tag
 
         # Modify href attributes in <a> tags within toc_content
         for a in toc_content.find_all('a', href=True):
