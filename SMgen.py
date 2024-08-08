@@ -14,12 +14,12 @@ csv_file = os.path.join(dir_path, "smurls.csv")
 # def update_template():
 #     try:
 #         version = prompt_version()
-#         edate = prompt_date()
+#         edate = prompt_edate()
 
 def update_template():
     try:
-        version = "2023-4"
-        edate = "2023-04-01"
+        version = "2024-8"
+        edate = "2024-08-06"
 
         lang = "en"
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
@@ -32,7 +32,7 @@ def update_template():
             for row in reader:
                 placeholder, url = row
                 response = requests.get(url, headers=headers)
-                response.raise_for_status()  # Check for request errors
+                response.raise_for_status()
                 # Parse the HTML content
                 soup = BeautifulSoup(response.content, 'html.parser')
                 chapter_content = soup.find('div', id='ChapterContent') or soup.find('div', id='smg-main')
