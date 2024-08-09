@@ -21,9 +21,9 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def update_template():
     try:
+        lang = "fr"
         version = "2024-8"
         edate = "2024-08-06"
-        lang = "fr"
 
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
@@ -171,8 +171,8 @@ def update_template():
                         for h3 in chapter_content.find_all('h3'):
                             strong_tag = h3.find('strong')
                             if strong_tag and len(strong_tag.text) >= 5:
-                                href_second = strong_tag.text[9] if strong_tag.text[9].isdigit() else ''
-                                href_value = strong_tag.text[8]
+                                href_second = strong_tag.text[10] if strong_tag.text[10].isdigit() else ''
+                                href_value = strong_tag.text[9]
                                 a_tag = soup.new_tag('a', href=f'#_{href_value}{href_second}')
                                 a_tag.string = f'{href_value}{href_second} {h3.text}'
                                 h3.replace_with(a_tag)
@@ -191,7 +191,7 @@ def update_template():
                                 # Remove everything before the #
                                 href = href[href.index('#'):]
                                 a['href'] = href
-                            if 'annex' in href and 'tventes.gc' not in href:
+                            if 'annex' in href:
                                 a_content = a.text
                                 an_chap = a_content[-2:] if len(a_content) == 22 else a_content[-1]
                                 href = f'#an_{an_chap}'
@@ -212,7 +212,7 @@ def update_template():
                             annex_tag['id'] = new_id
                         for a in chapter_content.find_all('a', href=True):
                             href = a['href']
-                            if 'annex' in href:
+                            if 'annex' in href or '964950' in href: # 964950 is a fix for the chapter 9 node urls
                                 # Check if '#' is in href before using index()
                                 if '#' in href:
                                     # Remove everything before the #
