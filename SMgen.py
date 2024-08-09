@@ -212,7 +212,7 @@ def update_template():
                             annex_tag['id'] = new_id
                         for a in chapter_content.find_all('a', href=True):
                             href = a['href']
-                            if 'annex' in href or '964950' in href: # 964950 is a fix for the chapter 9 node urls
+                            if 'annex' in href or '964950' in href: # 964950 is a fix for french chapter 9 node urls
                                 # Check if '#' is in href before using index()
                                 if '#' in href:
                                     # Remove everything before the #
