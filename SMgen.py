@@ -2,28 +2,29 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import csv
+import re
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
-def prompt_lang():
-    return input('Enter the language of the SM (en or fr): ')
-def prompt_version():
-    return input('Enter the version (yyyy-m): ')
-def prompt_edate():
-    return input('Enter the effective date (yyyy-mm-dd): ')
-
-def update_template():
-    try:
-        lang = prompt_lang()
-        version = prompt_version()
-        edate = prompt_edate()
+# def prompt_lang():
+#     return input('Enter the language of the SM (en or fr): ')
+# def prompt_version():
+#     return input('Enter the version (yyyy-m): ')
+# def prompt_edate():
+#     return input('Enter the effective date (yyyy-mm-dd): ')
 
 # def update_template():
 #     try:
-#         lang = "fr"
-#         version = "2024-8"
-#         edate = "2024-08-06"
+#         lang = prompt_lang()
+#         version = prompt_version()
+#         edate = prompt_edate()
+
+def update_template():
+    try:
+        lang = "fr"
+        version = "2024-7"
+        edate = "2024-11-08"
 
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
@@ -113,9 +114,14 @@ def update_template():
                                     # Handle the case where '#' is not found in href
                                     print(f"Warning: '#' not found in href: {href}")
                     if 'an' in placeholder:
+                        number = re.search(r'an(\d+)', placeholder).group(1)
                         for a in chapter_content.find_all('a', id=True):
                             a_id = a['id']
-                            if '_' in a_id:
+                            if 'ote_' in a_id:
+                                # Remove everything before the #
+                                a_id = f'an{number}{a_id}'
+                                a['id'] = a_id
+                            elif re.search(r'_\d', a_id):
                                 # Remove everything before the #
                                 a_id = f'an{a_id}'
                                 a['id'] = a_id
@@ -222,11 +228,15 @@ def update_template():
                                 else:
                                     # Handle the case where '#' is not found in href
                                     print(f"Warning: '#' not found in href: {href}")
-
                     if 'an' in placeholder:
+                        number = re.search(r'an(\d+)', placeholder).group(1)
                         for a in chapter_content.find_all('a', id=True):
                             a_id = a['id']
-                            if '_' in a_id:
+                            if 'emarque_' in a_id:
+                                # Remove everything before the #
+                                a_id = f'an{number}{a_id}'
+                                a['id'] = a_id
+                            elif re.search(r'_\d', a_id):
                                 # Remove everything before the #
                                 a_id = f'an{a_id}'
                                 a['id'] = a_id
