@@ -29,7 +29,7 @@ list-style-type: none;
 list-style-type: upper-alpha;
 }
 
-All chapter content ordered list convention:
+/* All chapter content ordered list convention: 
 1st level: lower-alphabetical
 2nd level: lower-roman numerals
 3rd level: upper-alphabetical
@@ -58,6 +58,7 @@ Annex 10 content convention:
 2nd: lower-roman numerals
 3rd: upper-alphabetical
 4th: lower-roman numerals
+*/
 
 AN1
 #annex-1 ol {
