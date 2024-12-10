@@ -1,7 +1,0 @@
-BAS links present in en and fr
-ch6 annex header id not there in en and fr
-ch2 annex header not in the right place in fr
-ch7 annex header id not consistant in fr
-ch9 annex section has node urls in fr
-issue with glossary other language links
-issue with internal anchor links
