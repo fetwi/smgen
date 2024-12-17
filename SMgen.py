@@ -22,9 +22,9 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def update_template():
     try:
-        lang = "fr"
-        version = "2024-7"
-        edate = "2024-11-08"
+        lang = "en"
+        version = "2024-8"
+        edate = "2024-12-13"
 
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
@@ -92,9 +92,23 @@ def update_template():
                         for tag in chapter_content.find_all(True):
                             if tag.name in ['script']:
                                 tag.decompose()
+                    if 'glo' in placeholder:
+                        for p_tag in chapter_content.find_all('p'):
+                            if p_tag.text.startswith('French:'):
+                                p_tag.decompose()
+                        for a in chapter_content.find_all('a', href=True):
+                            href = a['href']
+                            if 'glossa' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
                     if 'ch' in placeholder:
-                        # Find the <a> tag with id "_Annexes" and modify its id
-                        annex_tag = chapter_content.find('a', id='_Annexes')
+                        annex_tag = chapter_content.find('a', id='_Annexes') or chapter_content.find('h2', id='_annexes')
                         if annex_tag:
                             # Get the third and fourth characters of the placeholder
                             third_char = placeholder[3]
@@ -125,7 +139,48 @@ def update_template():
                                 # Remove everything before the #
                                 a_id = f'an{a_id}'
                                 a['id'] = a_id
-
+                        for a in chapter_content.find_all('a', href=True):
+                            href = a['href']
+                            if 'annex' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = '#an' + href[1:]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
+                            if '#_' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = '#an' + href[1:]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
+                            if 'Note_' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = f'#an{number}Note_' + href[-1]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
+                            if 'note_' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = f'#an{number}note_' + href[-1]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
                     chapter_content = chapter_content.decode_contents()
                     toc = str(chapter_content)
 
@@ -207,9 +262,23 @@ def update_template():
                         for tag in chapter_content.find_all(True):
                             if tag.name in ['script']:
                                 tag.decompose()
+                    if 'glo' in placeholder:
+                        for p_tag in chapter_content.find_all('p'):
+                            if p_tag.text.startswith('Anglais'):
+                                p_tag.decompose()
+                        for a in chapter_content.find_all('a', href=True):
+                            href = a['href']
+                            if 'glossa' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
                     if 'ch' in placeholder:
-                        # Find the <a> tag with id "_Annexes" and modify its id
-                        annex_tag = chapter_content.find('a', id='_Annexes')
+                        annex_tag = chapter_content.find('a', id='_Annexes') or chapter_content.find('h2', id='_annexes')
                         if annex_tag:
                             # Get the third and fourth characters of the placeholder
                             third_char = placeholder[3]
@@ -240,7 +309,48 @@ def update_template():
                                 # Remove everything before the #
                                 a_id = f'an{a_id}'
                                 a['id'] = a_id
-
+                        for a in chapter_content.find_all('a', href=True):
+                            href = a['href']
+                            if 'annex' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = '#an' + href[1:]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
+                            if '#_' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = '#an' + href[1:]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
+                            if 'Remarque_' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = f'#an{number}Remarque_' + href[-1]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
+                            if 'remarque_' in href:
+                                # Check if '#' is in href before using index()
+                                if '#' in href:
+                                    # Remove everything before the #
+                                    href = href[href.index('#'):]
+                                    href = f'#an{number}remarque_' + href[-1]
+                                    a['href'] = href
+                                else:
+                                    # Handle the case where '#' is not found in href
+                                    print(f"Warning: '#' not found in href: {href}")
                     chapter_content = chapter_content.decode_contents()
                     toc = str(chapter_content)
 
