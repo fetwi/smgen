@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import os
 import csv
 import re
+import zipfile
+from io import BytesIO
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -19,7 +21,7 @@ def update_template(lang, version, edate):
             csv_file = os.path.join(dir_path, "smurls_fr.csv")
         else:
             st.error("Invalid language selected.")
-            return
+            return None
 
         with open(template_file, 'r', encoding='utf-8') as file:
             template = file.read()
@@ -75,8 +77,20 @@ def update_template(lang, version, edate):
                     for tag in chapter_content.find_all(True):
                         if tag.name in ['script']:
                             tag.decompose()
+                if 'glo' in placeholder:
+                    for p_tag in chapter_content.find_all('p'):
+                        if p_tag.text.startswith('French:'):
+                            p_tag.decompose()
+                    for a in chapter_content.find_all('a', href=True):
+                        href = a['href']
+                        if 'glossa' in href:
+                            if '#' in href:
+                                href = href[href.index('#'):]
+                                a['href'] = href
+                            else:
+                                print(f"Warning: '#' not found in href: {href}")
                 if 'ch' in placeholder:
-                    annex_tag = chapter_content.find('a', id='_Annexes')
+                    annex_tag = chapter_content.find('a', id='_Annexes') or chapter_content.find('a', id='_annexes')
                     if annex_tag:
                         third_char = placeholder[3]
                         fourth_char = placeholder[4] if placeholder[4] != '}' else ''
@@ -90,7 +104,7 @@ def update_template(lang, version, edate):
                                 href = '#an' + href[1:]
                                 a['href'] = href
                             else:
-                                st.warning(f"Warning: '#' not found in href: {href}")
+                                print(f"Warning: '#' not found in href: {href}")
                 if 'an' in placeholder:
                     number = re.search(r'an(\d+)', placeholder).group(1)
                     for a in chapter_content.find_all('a', id=True):
@@ -114,16 +128,31 @@ def update_template(lang, version, edate):
         with open(output_file_name, 'w', encoding='utf-8') as file:
             file.write(template)
 
-        st.success(f'Template updated and saved as {output_file_name}')
+        return output_file_name
     except Exception as e:
         st.error(f'Error updating template: {e}')
+        return None
 
 # Streamlit app
-st.title('SM Template Updater')
+st.title('SM Offline file Generator')
 
 lang = st.selectbox('Select Language', ['en', 'fr'])
 version = st.text_input('Enter Version (yyyy-m)', '2024-7')
 edate = st.text_input('Enter Effective Date (yyyy-mm-dd)', '2024-11-08')
 
-if st.button('Update Template'):
-    update_template(lang, version, edate)
+if st.button('Update file'):
+    output_file_name = update_template(lang, version, edate)
+    if output_file_name:
+        # Create a zip file
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            zip_file.write(output_file_name, os.path.basename(output_file_name))
+        zip_buffer.seek(0)
+
+        # Provide a download link for the zip file
+        st.download_button(
+            label="Download ZIP",
+            data=zip_buffer,
+            file_name=f'SM-{version}_{lang}.zip',
+            mime='application/zip'
+        )

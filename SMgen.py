@@ -7,24 +7,24 @@ import re
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
-# def prompt_lang():
-#     return input('Enter the language of the SM (en or fr): ')
-# def prompt_version():
-#     return input('Enter the version (yyyy-m): ')
-# def prompt_edate():
-#     return input('Enter the effective date (yyyy-mm-dd): ')
-
-# def update_template():
-#     try:
-#         lang = prompt_lang()
-#         version = prompt_version()
-#         edate = prompt_edate()
+def prompt_lang():
+    return input('Enter the language of the SM (en or fr): ')
+def prompt_version():
+    return input('Enter the version (yyyy-m): ')
+def prompt_edate():
+    return input('Enter the effective date (yyyy-mm-dd): ')
 
 def update_template():
     try:
-        lang = "en"
-        version = "2024-8"
-        edate = "2024-12-13"
+        lang = prompt_lang()
+        version = prompt_version()
+        edate = prompt_edate()
+
+# def update_template():
+#     try:
+#         lang = "en"
+#         version = "2024-8"
+#         edate = "2024-12-13"
 
         headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
